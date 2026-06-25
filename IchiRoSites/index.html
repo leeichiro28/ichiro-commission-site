@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一路IchiRo委託網站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-dark: #0e0e0c;
+    --bg-mid: #161612;
+    --bg-card: #1e1e18;
+    --gold: #c9a96e;
+    --gold-light: #e2c898;
+    --gold-dim: #7a6340;
+    --cream: #f0e6d0;
+    --text-muted: #9c9485;
+    --text-body: #b8b0a0;
+    --border: #2e2e26;
+    --accent-green: #4a6741;
+    --radius: 4px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-body);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(14,14,12,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--cream);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-body); font-size: 13px; font-weight: 500; text-decoration: none;
+    letter-spacing: 0.06em; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+
+  /* ── HAMBURGER (mobile nav toggle) ── */
+  .nav-toggle {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 28px; height: 28px;
+    background: none; border: none; cursor: pointer; padding: 0;
+    z-index: 101;
+  }
+  .nav-toggle span {
+    display: block; width: 100%; height: 2px;
+    background: var(--cream); border-radius: 2px;
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.open span:nth-child(2) { opacity: 0; }
+  .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── HERO ── */
+  #home {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    background: radial-gradient(ellipse 60% 50% at 50% 40%, #1c1a10 0%, var(--bg-dark) 100%);
+    position: relative;
+  }
+  .avatar-ring {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 32px;
+    background: var(--bg-card);
+    overflow: hidden;
+  }
+  .avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .avatar-fallback { width: 48px; height: 48px; fill: var(--gold); display: none; }
+
+  h1.hero-title {
+    font-family: 'Jost', sans-serif;
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    color: var(--text-muted); font-size: 12px; letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-style: italic;
+    font-family: 'Jost', sans-serif;
+  }
+  .hero-ai-notice {
+    color: var(--text-muted); font-size: 11px; letter-spacing: 0.04em;
+    margin-bottom: 8px; opacity: 0.75;
+  }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold); font-size: 11px; letter-spacing: 0.12em;
+    padding: 6px 16px; border-radius: 2px;
+    margin: 24px 0 36px;
+    text-transform: uppercase;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #6db36d; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── CLOSED 狀態 ──
+     想切換成「關閉中」時，把 HTML 的 status-badge 那個 div
+     加上 class="status-badge closed"（已附範例在下方註解）
+     呼吸燈會變灰色，且停止呼吸動畫。 */
+  .status-badge.closed { border-color: var(--border); color: var(--text-muted); }
+  .status-badge.closed .status-dot { background: #6b6b66; animation: none; }
+
+  .hero-btns { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center; }
+  .btn-gold {
+    background: var(--gold); color: #0e0e0c;
+    padding: 12px 28px; border: none; border-radius: var(--radius);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; text-decoration: none; letter-spacing: 0.06em;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px -4px rgba(201,169,110,0.25);
+  }
+  .btn-gold:hover { background: var(--gold-light); box-shadow: 0 8px 24px -4px rgba(201,169,110,0.4); }
+  .btn-outline {
+    background: transparent; color: var(--cream);
+    padding: 12px 28px; border: 1px solid var(--border); border-radius: var(--radius);
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; text-decoration: none; letter-spacing: 0.06em;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .social-links { display: flex; flex-direction: column; gap: 10px; width: 280px; }
+  .social-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 12px 16px; border-radius: var(--radius);
+    text-decoration: none; color: var(--text-body); transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px -4px rgba(0,0,0,0.3);
+  }
+  .social-item:hover { border-color: var(--gold-dim); box-shadow: 0 6px 16px -4px rgba(0,0,0,0.4); }
+  .social-left { display: flex; flex-direction: column; text-align: left; }
+  .social-handle { color: var(--cream); font-size: 13px; }
+  .social-platform { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .social-icon { width: 18px; height: 18px; opacity: 0.6; }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 96px 24px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 16px; text-align: center;
+  }
+  .section-title {
+    font-family: 'Jost', sans-serif; font-size: clamp(22px, 4vw, 36px);
+    color: var(--cream); text-align: center; font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .section-sub { text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 48px; }
+
+  /* ── PRICING ── */
+  #pricing { background: linear-gradient(180deg, var(--bg-mid) 0%, #131310 100%); }
+  .price-toggle { display: flex; gap: 0; margin: 0 auto 40px; justify-content: center; }
+  .toggle-btn {
+    padding: 8px 24px; border: 1px solid var(--border); background: none;
+    color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif; transition: all 0.2s;
+  }
+  .toggle-btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .toggle-btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; border-left: none; }
+  .toggle-btn.active { background: var(--gold); color: #0e0e0c; border-color: var(--gold); }
+
+  .price-table { max-width: 640px; margin: 0 auto; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .price-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+  }
+  .price-row:first-child { border-top: 1px solid var(--border); }
+  .price-name { color: var(--text-body); font-size: 14px; }
+  .price-amount { color: var(--gold); font-size: 16px; font-family: 'Jost', sans-serif; }
+
+  .payment-box { max-width: 640px; margin: 32px auto 0; }
+  .payment-header { padding: 0 4px 16px; color: var(--gold); font-weight: 600; font-size: 13px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+  .payment-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; margin-bottom: 10px;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  }
+  .payment-row:last-child { margin-bottom: 0; }
+  .payment-left { display: flex; align-items: center; gap: 14px; }
+  .payment-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1px solid var(--gold-dim); color: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; flex-shrink: 0;
+  }
+  .payment-method { color: var(--cream); font-size: 14px; }
+  .payment-note { color: var(--text-muted); font-size: 12px; }
+
+  .price-disclaimer { text-align: center; font-size: 12px; color: var(--text-muted); margin: 24px auto 0; max-width: 500px; }
+
+  /* ── PORTFOLIO ── */
+  #portfolio { background: linear-gradient(180deg, #131310 0%, var(--bg-dark) 100%); }
+  .portfolio-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; max-width: 960px; margin: 0 auto 40px;
+  }
+  .portfolio-card {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    aspect-ratio: 1/1; background: var(--bg-card); border: 1px solid var(--border);
+    cursor: pointer; transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    box-shadow: 0 6px 18px -6px rgba(0,0,0,0.35);
+  }
+  .portfolio-card:hover { transform: translateY(-4px); border-color: var(--gold-dim); box-shadow: 0 16px 32px -10px rgba(0,0,0,0.55); }
+  .portfolio-card img,
+  .gallery-item img,
+  .lightbox img {
+    -webkit-user-select: none; user-select: none;
+    -webkit-user-drag: none; user-drag: none;
+    -webkit-touch-callout: none;
+    pointer-events: none;
+  }
+  .portfolio-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-view-more {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(14,14,12,0.55);
+    opacity: 0; transition: opacity 0.25s;
+    color: var(--gold-light); font-size: 12px; letter-spacing: 0.08em;
+  }
+  .portfolio-card:hover .card-view-more { opacity: 1; }
+  .card-label {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(14,14,12,0.85); backdrop-filter: blur(4px);
+    color: var(--gold); font-size: 11px; padding: 4px 10px;
+    border-radius: 2px; border: 1px solid var(--gold-dim);
+  }
+  .card-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding: 20px 14px 14px;
+  }
+  .card-type { color: var(--cream); font-size: 13px; }
+  .card-desc { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+
+  /* ════════════════════════════════════════════════════════
+     分類圖庫彈窗 (Gallery Modal) — 點分類卡片後打開
+     ════════════════════════════════════════════════════════ */
+  .gallery-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(8,8,7,0.93);
+    backdrop-filter: blur(6px);
+    padding: 80px 24px 40px;
+    overflow-y: auto;
+  }
+  .gallery-modal.open { display: block; }
+  .gallery-modal-inner { max-width: 1000px; margin: 0 auto; }
+  .gallery-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gallery-modal-title { font-family: 'Jost', sans-serif; font-size: 22px; color: var(--cream); letter-spacing: 0.04em; }
+  .gallery-modal-price { color: var(--gold); font-size: 13px; margin-top: 4px; }
+  .gallery-close {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .gallery-close:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .gallery-modal-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  .gallery-item {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    aspect-ratio: 1/1; background: var(--bg-card); border: 1px solid var(--border);
+    cursor: zoom-in; transition: opacity 0.2s;
+  }
+  .gallery-item:hover { opacity: 0.85; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  @media (max-width: 700px) {
+    .gallery-modal-grid { grid-template-columns: repeat(2, 1fr); }
+    .gallery-modal { padding: 72px 16px 32px; }
+  }
+
+  /* ════════════════════════════════════════════════════════
+     圖片放大 Lightbox — 點圖庫裡的圖片後全螢幕放大
+     ════════════════════════════════════════════════════════ */
+  .lightbox {
+    display: none;
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0,0,0,0.92);
+    align-items: center; justify-content: center;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 88vw; max-height: 86vh;
+    object-fit: contain; border-radius: 2px;
+  }
+  .lightbox-close, .lightbox-prev, .lightbox-next {
+    position: absolute; background: rgba(20,20,17,0.6);
+    border: 1px solid var(--border); color: var(--cream);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .lightbox-close {
+    top: 20px; right: 20px; width: 40px; height: 40px;
+    border-radius: 50%; font-size: 20px;
+  }
+  .lightbox-prev, .lightbox-next {
+    top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; border-radius: 50%; font-size: 20px;
+  }
+  .lightbox-prev { left: 20px; }
+  .lightbox-next { right: 20px; }
+  .lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover {
+    border-color: var(--gold-dim); color: var(--gold);
+  }
+  .lightbox-counter {
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    color: var(--text-muted); font-size: 12px; letter-spacing: 0.06em;
+  }
+  @media (max-width: 700px) {
+    .lightbox-prev, .lightbox-next { width: 38px; height: 38px; }
+    .lightbox-prev { left: 8px; }
+    .lightbox-next { right: 8px; }
+    .lightbox-close { top: 12px; right: 12px; }
+  }
+
+  /* Portfolio placeholder colors */
+  .pc-1 { background: linear-gradient(135deg, #1a2535, #2c1a35); }
+  .pc-2 { background: linear-gradient(135deg, #1a1535, #351a2c); }
+  .pc-3 { background: linear-gradient(135deg, #2c2215, #1a2215); }
+  .pc-4 { background: linear-gradient(135deg, #1a2a1a, #2a1a2a); }
+
+  /* ── GUIDELINES ── */
+  #guidelines { background: linear-gradient(180deg, var(--bg-mid) 0%, #131310 100%); }
+  .guidelines-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 800px; margin: 0 auto 48px; }
+  .guide-card-wide { grid-column: 1 / -1; }
+  .guide-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 8px 24px -8px rgba(0,0,0,0.4); }
+  .guide-card-title { font-size: 12px; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .guide-card-title span { font-size: 14px; }
+  .guide-card-title-accept { color: #6db36d; }
+  .guide-card-title-reject { color: #d16a6a; }
+  .guide-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .guide-list li { font-size: 13px; color: var(--text-body); display: flex; gap: 8px; }
+  .guide-list li::before { content: '·'; color: var(--gold-dim); flex-shrink: 0; }
+  .guide-list.dont li::before { color: #8b4444; }
+
+  .steps-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; max-width: 800px; margin: 0 auto 32px; }
+  .step { text-align: center; padding: 20px 8px; position: relative; }
+  .step:not(:last-child)::after {
+    content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    width: 1px; height: 40%; background: var(--border);
+  }
+  .step-num { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 0.12em; margin-bottom: 8px; }
+  .step-label { color: var(--cream); font-size: 13px; margin-bottom: 4px; }
+  .step-detail { color: var(--text-muted); font-size: 11px; }
+
+  .timeline-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 800px; margin: 0 auto 40px; }
+  .timeline-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; box-shadow: 0 8px 24px -8px rgba(0,0,0,0.4); }
+  .tl-label { font-size: 11px; color: var(--gold); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .tl-duration { color: var(--cream); font-size: 20px; font-family: 'Jost', sans-serif; margin-bottom: 4px; }
+  .tl-desc { font-size: 12px; color: var(--text-muted); }
+
+  /* ── CONTACT ── */
+  #contact {
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, #181712 0%, var(--bg-dark) 70%);
+    border-top: 1px solid var(--border);
+  }
+  .contact-links { display: flex; flex-direction: column; gap: 10px; max-width: 480px; margin: 0 auto 24px; }
+  .contact-note { text-align: center; font-size: 12px; color: var(--text-muted); max-width: 420px; margin: 0 auto; line-height: 1.8; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: linear-gradient(180deg, var(--bg-mid) 0%, #121210 100%); border-top: 1px solid var(--border);
+    padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .footer-copy { font-family: 'Jost', sans-serif; letter-spacing: 0.08em; font-size: 11px; color: var(--text-muted); }
+
+  @media (max-width: 880px) {
+    .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 700px) {
+    nav { padding: 14px 20px; }
+    .nav-toggle { display: flex; }
+    .nav-links {
+      display: flex; flex-direction: column; gap: 0;
+      position: fixed; top: 57px; left: 0; right: 0;
+      background: rgba(14,14,12,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .nav-links.open { max-height: 320px; }
+    .nav-links li { width: 100%; }
+    .nav-links a {
+      display: block; padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    section { padding: 64px 20px; }
+    .guidelines-grid { grid-template-columns: 1fr; }
+    .steps-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .step::after { display: none; }
+    .timeline-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">一路IchiRo</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">首頁</a></li>
+    <li><a href="#pricing">價目表</a></li>
+    <li><a href="#guidelines">委託須知</a></li>
+    <li><a href="#contact">社群與聯絡</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="開啟選單" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="avatar-ring">
+    <img src="images/dragon.png" alt="Mira Vesper avatar" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="avatar-fallback">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+    </svg>
+  </div>
+
+  <h1 class="hero-title">IchiRo</h1>
+  <p class="hero-sub">個人繪圖委託網站 · Personal art commission website.</p>
+  <p class="hero-ai-notice">本站所有作品禁止用於任何 AI 訓練、生成或圖轉圖等用途</p>
+  <!--
+    委託狀態切換：
+    開放中（目前）：<div class="status-badge">  ...  COMMISSIONS · OPEN
+    關閉時：把下面改成 ↓↓↓
+    <div class="status-badge closed">
+      <span class="status-dot"></span>
+      COMMISSIONS · CLOSED
+    </div>
+    （只要加上 class="closed" 並把文字改成 CLOSED，呼吸燈就會變灰色且停止閃爍）
+  -->
+  <div class="status-badge">
+    <span class="status-dot"></span>
+    COMMISSIONS · OPEN
+  </div>
+
+  <div class="hero-btns">
+    <a href="#pricing" class="btn-gold">查看價目表 →</a>
+    <a href="#guidelines" class="btn-outline">委託前須知 →</a>
+  </div>
+
+  <div class="social-links">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結，例如 https://twitter.com/ICHI_Tencho -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">@ICHI_Tencho</span>
+        <span class="social-platform">Twitter / X</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- 把下面 href="" 換成你的 Pixiv 連結，例如 https://www.pixiv.net/users/12345678 -->
+    <a href="https://www.pixiv.net/users/37880191" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">一路</span>
+        <span class="social-platform">Pixiv</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4.935 0A4.924 4.924 0 0 0 0 4.935v14.13A4.924 4.924 0 0 0 4.935 24H19.06A4.924 4.924 0 0 0 24 19.065V4.935A4.924 4.924 0 0 0 19.065 0zm7.81 4.547c2.181 0 4.058.676 5.399 1.847a6.117 6.117 0 0 1 2.116 4.66c.005 1.854-.68 3.476-1.963 4.478-1.297 1.012-3.054 1.564-5.368 1.564h-2.474v4.245H7.44V4.55zm-.288 1.8H10.52v7.073h1.938c1.917 0 3.168-.428 3.94-1.048.77-.618 1.17-1.554 1.167-2.98a4.26 4.26 0 0 0-1.443-3.26c-.985-.858-2.401-1.292-4.465-1.286z"/></svg>
+    </a>
+    <!-- Email 連結 -->
+    <a href="mailto:leeichilu28@gmail.com" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">leeichilu28@gmail.com</span>
+        <span class="social-platform">Email</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <p class="eyebrow">PRICING</p>
+  <h2 class="section-title">Commission Prices</h2>
+  <p class="section-sub">委託價格一覽</p>
+
+  <div class="price-toggle">
+    <button class="toggle-btn active" onclick="setPrice('ntd', this)">NT$ 台幣</button>
+    <button class="toggle-btn" onclick="setPrice('rm', this)">RM 馬幣</button>
+  </div>
+
+  <div class="price-table">
+    <div class="price-row">
+      <span class="price-name">Q版人物</span>
+      <span class="price-amount" data-ntd="NT$400 / 人" data-rm="RM 55 / 人">NT$400 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">半身Q版人物</span>
+      <span class="price-amount" data-ntd="NT$350 / 人" data-rm="RM 48 / 人">NT$350 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">QQ人</span>
+      <span class="price-amount" data-ntd="NT$300 / 人" data-rm="RM 42 / 人">NT$300 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">毛球</span>
+      <span class="price-amount" data-ntd="NT$250 / 隻" data-rm="RM 35 / 隻">NT$250 / 隻</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">額外配件（超過兩件）</span>
+      <span class="price-amount" data-ntd="+NT$15 / 件" data-rm="+RM 2 / 件">+NT$15 / 件</span>
+    </div>
+  </div>
+
+  <div class="payment-box" style="margin-top:32px;">
+    <div class="payment-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      付款方式
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon">P</span>
+        <span class="payment-method">PayPal</span>
+      </div>
+      <span class="payment-note">主要付款方式</span>
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg></span>
+        <span class="payment-method">FPX / Maybank / Touch 'n Go</span>
+      </div>
+      <span class="payment-note">馬來西亞本地轉帳</span>
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon">+</span>
+        <span class="payment-method">其他付款方式</span>
+      </div>
+      <span class="payment-note">可另行討論</span>
+    </div>
+  </div>
+
+  <p class="price-disclaimer">※ 匯率將會以當月市場價格為準，費用金額須另行確認。</p>
+
+  <div style="text-align:center;margin-top:40px;">
+    <a href="#portfolio" class="btn-gold">查看作品範例 →</a>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <p class="eyebrow">PORTFOLIO</p>
+  <h2 class="section-title">Work Examples</h2>
+  <p class="section-sub">各類型作品範例與價格參考</p>
+
+  <div class="portfolio-grid">
+    <!-- 每張卡片代表一個分類，點擊後會打開該分類的圖庫彈窗
+         data-category 對應下面 galleryData 裡的 key，記得保持一致 -->
+    <div class="portfolio-card" onclick="openGallery('qchibi')">
+      <!-- 把 src="" 換成你的圖片路徑或網址，這張是分類的「封面圖」 -->
+      <img src="images/kSPEAK.png" alt="Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-1" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$400</div>
+      <div class="card-overlay">
+        <div class="card-type">Q版人物</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('halfbody')">
+      <img src="images/comic6.png" alt="半身Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-2" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$350</div>
+      <div class="card-overlay">
+        <div class="card-type">半身Q版人物</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('qq')">
+      <img src="images/qq1.png" alt="QQ人範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-3" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$300</div>
+      <div class="card-overlay">
+        <div class="card-type">QQ人</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('furball')">
+      <img src="images/anm3.png" alt="毛球範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-4" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$250</div>
+      <div class="card-overlay">
+        <div class="card-type">毛球</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="#guidelines" class="btn-outline">閱讀委託須知 →</a>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     分類圖庫彈窗 (Gallery Modal)
+     點擊上面任一分類卡片後，這裡會顯示該分類所有範例圖
+     ════════════════════════════════════════════════════════ -->
+<div class="gallery-modal" id="galleryModal">
+  <div class="gallery-modal-inner">
+    <div class="gallery-modal-header">
+      <div>
+        <div class="gallery-modal-title" id="galleryTitle">Q版人物</div>
+        <div class="gallery-modal-price" id="galleryPrice">NT$400</div>
+      </div>
+      <button class="gallery-close" onclick="closeGallery()" aria-label="關閉">✕</button>
+    </div>
+    <div class="gallery-modal-grid" id="galleryGrid">
+      <!-- 圖片由 JS 自動產生，不用手動寫 -->
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     圖片放大 Lightbox
+     在上面圖庫彈窗裡點任一張圖，會用這個全螢幕放大顯示
+     ════════════════════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="關閉">✕</button>
+  <button class="lightbox-prev" onclick="navLightbox(-1)" aria-label="上一張">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-next" onclick="navLightbox(1)" aria-label="下一張">›</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<!-- GUIDELINES -->
+<section id="guidelines">
+  <p class="eyebrow">BEFORE YOU COMMISSION</p>
+  <h2 class="section-title">Commission Guidelines</h2>
+  <p class="section-sub">委託前請務必詳閱以下規範</p>
+
+  <div class="guidelines-grid">
+    <div class="guide-card">
+      <div class="guide-card-title guide-card-title-accept"><span>✓</span> 接受項目</div>
+      <ul class="guide-list">
+        <li>原創角色（OC）</li>
+        <li>二創角色</li>
+        <li>個人用途商品化（需事先告知，加收費用）</li>
+      </ul>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-title guide-card-title-reject"><span>✗</span> 不接受事項</div>
+      <ul class="guide-list dont">
+        <li>R18 / 成人色情內容</li>
+        <li>血腥暴力 / 獵奇內容</li>
+        <li>政治敏感 / 仇恨歧視內容</li>
+        <li>禁止將完稿用於任何 AI 相關操作，包括但不限於 AI 訓練、模仿畫風、生成圖像、圖轉圖（img2img）等</li>
+      </ul>
+    </div>
+    <div class="guide-card guide-card-wide">
+      <div class="guide-card-title"><span>!</span> 注意事項</div>
+      <ul class="guide-list">
+        <li>請先確認你喜歡我的畫風再下單</li>
+        <li>草稿確認後不接受退款</li>
+        <li>委託前請先確認目前是否開放接單</li>
+        <li>下單後請提供清晰的角色參考圖</li>
+        <li>草稿確認後方可上色，上色後不接受大改</li>
+        <li>完稿付款後才會提供雲端連結</li>
+        <li>完成時間視排隊情況而定，請耐心等候</li>
+        <li>禁止未告知商業使用與侵犯版權</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom:24px;">委託流程</p>
+  <div class="steps-row">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-label">聯絡我</div>
+      <div class="step-detail">Contact<br>Email / Twitter</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-label">提供角色與需求</div>
+      <div class="step-detail">Share Details<br>參考圖及文字說明</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-label">報價與草稿確認</div>
+      <div class="step-detail">Sketch<br>可修改設計方向</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-label">線稿＋上色完成</div>
+      <div class="step-detail">Final Art<br>完成完整畫作</div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-label">付款後交付成品</div>
+      <div class="step-detail">Delivery<br>寄送檔案至客戶</div>
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom:24px;">製作時間</p>
+  <div class="timeline-row">
+    <div class="timeline-card">
+      <div class="tl-label">總時程</div>
+      <div class="tl-duration">～2 週</div>
+      <div class="tl-desc">視排程而定</div>
+    </div>
+    <div class="timeline-card">
+      <div class="tl-label">第 1 週</div>
+      <div class="tl-duration">草稿階段</div>
+      <div class="tl-desc">草圖（Sketch）</div>
+    </div>
+    <div class="timeline-card">
+      <div class="tl-label">第 2 週</div>
+      <div class="tl-duration">線稿＋上色</div>
+      <div class="tl-desc">完成線稿與色彩</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="#contact" class="btn-gold">聯絡我 / 提出委託 →</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="eyebrow">CONTACT &amp; SOCIAL</p>
+  <h2 class="section-title">Find Me Here</h2>
+  <p class="section-sub" style="margin-bottom:40px;">有任何問題歡迎委託！歡迎透過以下方式聯絡我。</p>
+
+  <div class="contact-links">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結 -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">@ICHI_Tencho</span>
+        <span class="social-platform">Twitter / X</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="mailto:leeichilu28@gmail.com" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">leeichilu28@gmail.com</span>
+        <span class="social-platform">Email</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+  <p class="contact-note">最歡迎透過 Twitter DM 或 Email 找委託！<br>通常在 48 小時內回覆。</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">一路IchiRo</span>
+  <span>© 2026 · 所有作品版權歸作者所有 · 未經授權請勿使用。</span>
+  <div style="display:flex;gap:12px;">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結 -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- 把下面 href="" 換成你的 Pixiv 連結 -->
+    <a href="https://www.pixiv.net/users/37880191" target="_blank" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4.935 0A4.924 4.924 0 0 0 0 4.935v14.13A4.924 4.924 0 0 0 4.935 24H19.06A4.924 4.924 0 0 0 24 19.065V4.935A4.924 4.924 0 0 0 19.065 0zm7.81 4.547c2.181 0 4.058.676 5.399 1.847a6.117 6.117 0 0 1 2.116 4.66c.005 1.854-.68 3.476-1.963 4.478-1.297 1.012-3.054 1.564-5.368 1.564h-2.474v4.245H7.44V4.55zm-.288 1.8H10.52v7.073h1.938c1.917 0 3.168-.428 3.94-1.048.77-.618 1.17-1.554 1.167-2.98a4.26 4.26 0 0 0-1.443-3.26c-.985-.858-2.401-1.292-4.465-1.286z"/></svg>
+    </a>
+    <a href="mailto:leeichilu28@gmail.com" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+</footer>
+
+<script>
+function setPrice(currency, btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.price-amount').forEach(el => {
+    el.textContent = el.dataset[currency] || el.dataset.ntd;
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   分類圖庫 + Lightbox 放大
+   ────────────────────────────────────────────────────────
+   怎麼新增/修改圖片：
+   只要編輯下面 galleryData 這個物件就好，不用碰 HTML。
+   每個分類 key（例如 'qchibi'）要跟 portfolio-card 上
+   onclick="openGallery('qchibi')" 的名稱對應。
+   images 陣列裡的路徑就是你要放的圖片，可以新增任意多張。
+   ════════════════════════════════════════════════════════ */
+const galleryData = {
+  qchibi: {
+    title: 'Q版人物',
+    price: 'NT$400',
+    images: [
+      'images/kSPEAK.png',
+      'images/comic3.png',
+      'images/comic1.png',
+    
+    ]
+  },
+  halfbody: {
+    title: '半身Q版人物',
+    price: 'NT$350',
+    images: [
+      'images/comic6.png',
+      'images/comic2.png',
+      'images/comic4.png',
+      'images/comic5.png',
+    ]
+  },
+  qq: {
+    title: 'QQ人',
+    price: 'NT$300',
+    images: [
+      'images/qq1.png',
+      'images/qq2.png',
+  
+    ]
+  },
+  furball: {
+    title: '毛球',
+    price: 'NT$250',
+    images: [
+      'images/dragon.png',
+      'images/eat1.png',
+      'images/anm3.png',
+      'images/anm1.png',
+      'images/anm2.png',
+    ]
+  }
+};
+
+let currentGalleryImages = [];
+let currentLightboxIndex = 0;
+
+function openGallery(categoryKey) {
+  const data = galleryData[categoryKey];
+  if (!data) return;
+
+  document.getElementById('galleryTitle').textContent = data.title;
+  document.getElementById('galleryPrice').textContent = data.price;
+
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  data.images.forEach((src, idx) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.onclick = () => openLightbox(data.images, idx);
+    // 圖片載入失敗時顯示占位符號，不會整頁壞掉
+    item.innerHTML = `<img src="${src}" alt="${data.title} 範例 ${idx + 1}"
+      onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\\'font-size:32px;color:rgba(201,169,110,0.3);font-family:Jost,sans-serif;\\'>✦</span>';">`;
+    grid.appendChild(item);
+  });
+
+  document.getElementById('galleryModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGallery() {
+  document.getElementById('galleryModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openLightbox(images, index) {
+  currentGalleryImages = images;
+  currentLightboxIndex = index;
+  updateLightboxImage();
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function navLightbox(direction) {
+  currentLightboxIndex = (currentLightboxIndex + direction + currentGalleryImages.length) % currentGalleryImages.length;
+  updateLightboxImage();
+}
+
+function updateLightboxImage() {
+  const img = document.getElementById('lightboxImg');
+  img.src = currentGalleryImages[currentLightboxIndex];
+  document.getElementById('lightboxCounter').textContent =
+    (currentLightboxIndex + 1) + ' / ' + currentGalleryImages.length;
+}
+
+// 點擊彈窗背景（非內容區）時關閉
+document.getElementById('galleryModal').addEventListener('click', (e) => {
+  if (e.target.id === 'galleryModal') closeGallery();
+});
+document.getElementById('lightbox').addEventListener('click', (e) => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+
+// 鍵盤操作：ESC 關閉，左右鍵切換圖片
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('lightbox').classList.contains('open')) {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navLightbox(-1);
+    if (e.key === 'ArrowRight') navLightbox(1);
+  } else if (document.getElementById('galleryModal').classList.contains('open')) {
+    if (e.key === 'Escape') closeGallery();
+  }
+});
+
+/* ────────────────────────────────────────────────────────
+   Email 連結備援機制
+   原因：mailto: 連結只有在電腦/手機設定了「預設郵件 App」
+   （例如 Outlook、Mail App）時才會自動開啟。
+   很多人是用瀏覽器開 Gmail，沒有設定預設郵件 App，
+   點擊後會「看起來」沒反應。
+   這段程式碼會在點擊時，同時把信箱複製到剪貼簿，
+   並顯示提示文字，這樣即使沒跳出郵件視窗，
+   使用者也能直接貼上信箱寄信。
+   ──────────────────────────────────────────────────────── */
+document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+  link.addEventListener('click', function () {
+    const email = this.href.replace('mailto:', '').split('?')[0];
+    navigator.clipboard?.writeText(email).then(() => {
+      const toast = document.createElement('div');
+      toast.textContent = '已複製信箱：' + email;
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e1e18;color:#e2c898;border:1px solid #7a6340;padding:10px 20px;border-radius:4px;font-size:13px;z-index:999;font-family:"Noto Sans TC",sans-serif;';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }).catch(() => {});
+  });
+});
+
+/* ────────────────────────────────────────────────────────
+   手機版三條橫線 (hamburger) 選單
+   視窗縮小到 700px 以下時，導覽列文字會隱藏，
+   改成右上角的漢堡選單按鈕，點擊後展開下拉選單。
+   ──────────────────────────────────────────────────────── */
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+
+navToggle.addEventListener('click', () => {
+  const isOpen = navLinks.classList.toggle('open');
+  navToggle.classList.toggle('open', isOpen);
+  navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+});
+
+// 點擊選單裡的任一連結後，自動收起選單
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+/* ────────────────────────────────────────────────────────
+   防止圖片被輕易下載
+   - 擋右鍵選單：避免「另存圖片」選項出現
+   - 擋拖曳：避免把圖片拖到桌面儲存
+   注意：這只能擋掉最常見的存圖方式，無法防止
+   截圖、開發者工具等進階手段。圖庫裡的圖片是動態
+   產生的，所以這裡用「事件委派」綁在 document 上，
+   這樣新產生的圖片也會自動套用，不用額外處理。
+   ──────────────────────────────────────────────────────── */
+document.addEventListener('contextmenu', (e) => {
+  if (e.target.closest('.portfolio-card') ||
+      e.target.closest('.gallery-item') ||
+      e.target.closest('.lightbox')) {
+    e.preventDefault();
+  }
+});
+
+document.addEventListener('dragstart', (e) => {
+  if (e.target.tagName === 'IMG') {
+    e.preventDefault();
+  }
+});
+</script>
+
+</body>
+</html>
