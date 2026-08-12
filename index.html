@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>一路IchiRo委託網站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">一路IchiRo</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home">首頁</a></li>
+    <li><a href="#pricing">價目表</a></li>
+    <li><a href="#guidelines">委託須知</a></li>
+    <li><a href="#contact">社群與聯絡</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="開啟選單" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="avatar-ring">
+    <img src="images/dragon.png" alt="Mira Vesper avatar" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="avatar-fallback">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+    </svg>
+  </div>
+
+  <h1 class="hero-title">IchiRo</h1>
+  <p class="hero-sub">個人繪圖委託網站 · Personal art commission website.</p>
+  <p class="hero-ai-notice">本站所有作品禁止用於任何 AI 訓練、生成或圖轉圖等用途</p>
+  <!--
+    委託狀態切換：
+    開放中（目前）：<div class="status-badge">  ...  COMMISSIONS · OPEN
+    關閉時：把下面改成 ↓↓↓
+    <div class="status-badge closed">
+      <span class="status-dot"></span>
+      COMMISSIONS · CLOSED
+    </div>
+    （只要加上 class="closed" 並把文字改成 CLOSED，呼吸燈就會變灰色且停止閃爍）
+  -->
+  <div class="status-badge">
+    <span class="status-dot"></span>
+    COMMISSIONS · OPEN
+  </div>
+
+  <div class="hero-btns">
+    <a href="#pricing" class="btn-gold">查看價目表 →</a>
+    <a href="#guidelines" class="btn-outline">委託前須知 →</a>
+  </div>
+
+  <div class="social-links">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結，例如 https://twitter.com/ICHI_Tencho -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">@ICHI_Tencho</span>
+        <span class="social-platform">Twitter / X</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- 把下面 href="" 換成你的 Pixiv 連結，例如 https://www.pixiv.net/users/12345678 -->
+    <a href="https://www.pixiv.net/users/37880191" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">一路</span>
+        <span class="social-platform">Pixiv</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4.935 0A4.924 4.924 0 0 0 0 4.935v14.13A4.924 4.924 0 0 0 4.935 24H19.06A4.924 4.924 0 0 0 24 19.065V4.935A4.924 4.924 0 0 0 19.065 0zm7.81 4.547c2.181 0 4.058.676 5.399 1.847a6.117 6.117 0 0 1 2.116 4.66c.005 1.854-.68 3.476-1.963 4.478-1.297 1.012-3.054 1.564-5.368 1.564h-2.474v4.245H7.44V4.55zm-.288 1.8H10.52v7.073h1.938c1.917 0 3.168-.428 3.94-1.048.77-.618 1.17-1.554 1.167-2.98a4.26 4.26 0 0 0-1.443-3.26c-.985-.858-2.401-1.292-4.465-1.286z"/></svg>
+    </a>
+    <!-- Email 連結 -->
+    <a href="mailto:leeichilu28@gmail.com" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">leeichilu28@gmail.com</span>
+        <span class="social-platform">Email</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <p class="eyebrow">PRICING</p>
+  <h2 class="section-title">Commission Prices</h2>
+  <p class="section-sub">委託價格一覽</p>
+
+  <div class="price-toggle">
+    <button class="toggle-btn active" onclick="setPrice('ntd', this)">NT$ 台幣</button>
+    <button class="toggle-btn" onclick="setPrice('rm', this)">RM 馬幣</button>
+  </div>
+
+  <div class="price-table">
+    <div class="price-row">
+      <span class="price-name">Q版人物</span>
+      <span class="price-amount" data-ntd="NT$400 / 人" data-rm="RM 55 / 人">NT$400 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">半身Q版人物</span>
+      <span class="price-amount" data-ntd="NT$350 / 人" data-rm="RM 48 / 人">NT$350 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">QQ人</span>
+      <span class="price-amount" data-ntd="NT$300 / 人" data-rm="RM 42 / 人">NT$300 / 人</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">毛球</span>
+      <span class="price-amount" data-ntd="NT$250 / 隻" data-rm="RM 35 / 隻">NT$250 / 隻</span>
+    </div>
+    <div class="price-row">
+      <span class="price-name">額外配件（超過兩件）</span>
+      <span class="price-amount" data-ntd="+NT$15 / 件" data-rm="+RM 2 / 件">+NT$15 / 件</span>
+    </div>
+  </div>
+
+  <div class="payment-box" style="margin-top:32px;">
+    <div class="payment-header">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      付款方式
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon">P</span>
+        <span class="payment-method">PayPal</span>
+      </div>
+      <span class="payment-note">主要付款方式</span>
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg></span>
+        <span class="payment-method">FPX / Maybank / Touch 'n Go</span>
+      </div>
+      <span class="payment-note">馬來西亞本地轉帳</span>
+    </div>
+    <div class="payment-row">
+      <div class="payment-left">
+        <span class="payment-icon">+</span>
+        <span class="payment-method">其他付款方式</span>
+      </div>
+      <span class="payment-note">可另行討論</span>
+    </div>
+  </div>
+
+  <p class="price-disclaimer">※ 匯率將會以當月市場價格為準，費用金額須另行確認。</p>
+
+  <div style="text-align:center;margin-top:40px;">
+    <a href="#portfolio" class="btn-gold">查看作品範例 →</a>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <p class="eyebrow">PORTFOLIO</p>
+  <h2 class="section-title">Work Examples</h2>
+  <p class="section-sub">各類型作品範例與價格參考</p>
+
+  <div class="portfolio-grid">
+    <!-- 每張卡片代表一個分類，點擊後會打開該分類的圖庫彈窗
+         data-category 對應下面 galleryData 裡的 key，記得保持一致 -->
+    <div class="portfolio-card" onclick="openGallery('qchibi')">
+      <!-- 把 src="" 換成你的圖片路徑或網址，這張是分類的「封面圖」 -->
+      <img src="images/kSPEAK.png" alt="Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-1" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$400</div>
+      <div class="card-overlay">
+        <div class="card-type">Q版人物</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('halfbody')">
+      <img src="images/comic6.png" alt="半身Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-2" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$350</div>
+      <div class="card-overlay">
+        <div class="card-type">半身Q版人物</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('qq')">
+      <img src="images/qq1.png" alt="QQ人範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-3" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$300</div>
+      <div class="card-overlay">
+        <div class="card-type">QQ人</div>
+      </div>
+    </div>
+    <div class="portfolio-card" onclick="openGallery('furball')">
+      <img src="images/anm3.png" alt="毛球範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="pc-4" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <div class="card-view-more">查看更多範例 →</div>
+      <div class="card-label">NT$250</div>
+      <div class="card-overlay">
+        <div class="card-type">毛球</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="#guidelines" class="btn-outline">閱讀委託須知 →</a>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     分類圖庫彈窗 (Gallery Modal)
+     點擊上面任一分類卡片後，這裡會顯示該分類所有範例圖
+     ════════════════════════════════════════════════════════ -->
+<div class="gallery-modal" id="galleryModal">
+  <div class="gallery-modal-inner">
+    <div class="gallery-modal-header">
+      <div>
+        <div class="gallery-modal-title" id="galleryTitle">Q版人物</div>
+        <div class="gallery-modal-price" id="galleryPrice">NT$400</div>
+      </div>
+      <button class="gallery-close" onclick="closeGallery()" aria-label="關閉">✕</button>
+    </div>
+    <div class="gallery-modal-grid" id="galleryGrid">
+      <!-- 圖片由 JS 自動產生，不用手動寫 -->
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     圖片放大 Lightbox
+     在上面圖庫彈窗裡點任一張圖，會用這個全螢幕放大顯示
+     ════════════════════════════════════════════════════════ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="關閉">✕</button>
+  <button class="lightbox-prev" onclick="navLightbox(-1)" aria-label="上一張">‹</button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-next" onclick="navLightbox(1)" aria-label="下一張">›</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<!-- GUIDELINES -->
+<section id="guidelines">
+  <p class="eyebrow">BEFORE YOU COMMISSION</p>
+  <h2 class="section-title">Commission Guidelines</h2>
+  <p class="section-sub">委託前請務必詳閱以下規範</p>
+
+  <div class="guidelines-grid">
+    <div class="guide-card">
+      <div class="guide-card-title guide-card-title-accept"><span>✓</span> 接受項目</div>
+      <ul class="guide-list">
+        <li>原創角色（OC）</li>
+        <li>二創角色</li>
+        <li>個人用途商品化（需事先告知，加收費用）</li>
+      </ul>
+    </div>
+    <div class="guide-card">
+      <div class="guide-card-title guide-card-title-reject"><span>✗</span> 不接受事項</div>
+      <ul class="guide-list dont">
+        <li>R18 / 成人色情內容</li>
+        <li>血腥暴力 / 獵奇內容</li>
+        <li>政治敏感 / 仇恨歧視內容</li>
+        <li>禁止將完稿用於任何 AI 相關操作，包括但不限於 AI 訓練、模仿畫風、生成圖像、圖轉圖（img2img）等</li>
+      </ul>
+    </div>
+    <div class="guide-card guide-card-wide">
+      <div class="guide-card-title"><span>!</span> 注意事項</div>
+      <ul class="guide-list">
+        <li>請先確認你喜歡我的畫風再下單</li>
+        <li>草稿確認後不接受退款</li>
+        <li>委託前請先確認目前是否開放接單</li>
+        <li>下單後請提供清晰的角色參考圖</li>
+        <li>草稿確認後方可上色，上色後不接受大改</li>
+        <li>完稿付款後才會提供雲端連結</li>
+        <li>完成時間視排隊情況而定，請耐心等候</li>
+        <li>禁止未告知商業使用與侵犯版權</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom:24px;">委託流程</p>
+  <div class="steps-row">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-label">聯絡我</div>
+      <div class="step-detail">Contact<br>Email / Twitter</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-label">提供角色與需求</div>
+      <div class="step-detail">Share Details<br>參考圖及文字說明</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-label">報價與草稿確認</div>
+      <div class="step-detail">Sketch<br>可修改設計方向</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-label">線稿＋上色完成</div>
+      <div class="step-detail">Final Art<br>完成完整畫作</div>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-label">付款後交付成品</div>
+      <div class="step-detail">Delivery<br>寄送檔案至客戶</div>
+    </div>
+  </div>
+
+  <p class="eyebrow" style="margin-bottom:24px;">製作時間</p>
+  <div class="timeline-row">
+    <div class="timeline-card">
+      <div class="tl-label">總時程</div>
+      <div class="tl-duration">～2 週</div>
+      <div class="tl-desc">視排程而定</div>
+    </div>
+    <div class="timeline-card">
+      <div class="tl-label">第 1 週</div>
+      <div class="tl-duration">草稿階段</div>
+      <div class="tl-desc">草圖（Sketch）</div>
+    </div>
+    <div class="timeline-card">
+      <div class="tl-label">第 2 週</div>
+      <div class="tl-duration">線稿＋上色</div>
+      <div class="tl-desc">完成線稿與色彩</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;">
+    <a href="#contact" class="btn-gold">聯絡我 / 提出委託 →</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="eyebrow">CONTACT &amp; SOCIAL</p>
+  <h2 class="section-title">Find Me Here</h2>
+  <p class="section-sub" style="margin-bottom:40px;">有任何問題歡迎委託！歡迎透過以下方式聯絡我。</p>
+
+  <div class="contact-links">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結 -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">@ICHI_Tencho</span>
+        <span class="social-platform">Twitter / X</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="mailto:leeichilu28@gmail.com" class="social-item">
+      <div class="social-left">
+        <span class="social-handle">leeichilu28@gmail.com</span>
+        <span class="social-platform">Email</span>
+      </div>
+      <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+  <p class="contact-note">最歡迎透過 Twitter DM 或 Email 找委託！<br>通常在 48 小時內回覆。</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">一路IchiRo</span>
+  <span>© 2026 · 所有作品版權歸作者所有 · 未經授權請勿使用。</span>
+  <div style="display:flex;gap:12px;">
+    <!-- 把下面 href="" 換成你的 Twitter/X 連結 -->
+    <a href="https://twitter.com/ICHI_Tencho" target="_blank" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.736l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <!-- 把下面 href="" 換成你的 Pixiv 連結 -->
+    <a href="https://www.pixiv.net/users/37880191" target="_blank" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4.935 0A4.924 4.924 0 0 0 0 4.935v14.13A4.924 4.924 0 0 0 4.935 24H19.06A4.924 4.924 0 0 0 24 19.065V4.935A4.924 4.924 0 0 0 19.065 0zm7.81 4.547c2.181 0 4.058.676 5.399 1.847a6.117 6.117 0 0 1 2.116 4.66c.005 1.854-.68 3.476-1.963 4.478-1.297 1.012-3.054 1.564-5.368 1.564h-2.474v4.245H7.44V4.55zm-.288 1.8H10.52v7.073h1.938c1.917 0 3.168-.428 3.94-1.048.77-.618 1.17-1.554 1.167-2.98a4.26 4.26 0 0 0-1.443-3.26c-.985-.858-2.401-1.292-4.465-1.286z"/></svg>
+    </a>
+    <a href="mailto:leeichilu28@gmail.com" style="color:var(--text-muted);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+    </a>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+<!-- ════════════════════════════════════════════════════════
+     隱藏後台入口：整站沒有任何按鈕/連結指向這裡，
+     只有連續點擊左上角 Logo 7 下（3 秒內）才會打開。
+     ════════════════════════════════════════════════════════ -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-box">
+    <span class="admin-box-close" id="adminCloseBtn">✕</span>
+    <p class="admin-eyebrow">Studio Access</p>
+    <h3>後台登入</h3>
+    <form id="adminLoginForm">
+      <input type="email" id="adminEmail" placeholder="Email" required autocomplete="username">
+      <input type="password" id="adminPassword" placeholder="密碼" required autocomplete="current-password">
+      <button type="submit" class="btn-gold" style="width:100%;">登入</button>
+      <p class="admin-error" id="adminError"></p>
+    </form>
+  </div>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="admin-panel-header">
+    <span>作品後台</span>
+    <span>
+      <button class="admin-icon-btn" id="adminPanelClose">收起</button>
+      <button class="admin-icon-btn" id="adminLogoutBtn">登出</button>
+    </span>
+  </div>
+  <div class="admin-panel-body">
+    <div class="admin-migrate-box">
+      <label style="margin-bottom:8px;">維護工具</label>
+      <button type="button" class="admin-icon-btn" id="adminMigrateBtn" style="width:100%; padding:9px; margin-bottom:6px;">一鍵搬遷舊作品到 Supabase</button>
+      <p class="admin-status" id="adminMigrateStatus"></p>
+    </div>
+    <form id="adminUploadForm">
+      <label>分類</label>
+      <select id="adminCategory">
+        <option value="qchibi">Q版人物</option>
+        <option value="halfbody">半身Q版人物</option>
+        <option value="qq">QQ人</option>
+        <option value="furball">毛球</option>
+      </select>
+      <label>選擇圖片</label>
+      <input type="file" id="adminFile" accept="image/*" required>
+      <button type="submit" class="btn-gold" style="width:100%;">新增到作品牆</button>
+      <p class="admin-status" id="adminUploadStatus"></p>
+    </form>
+    <div class="admin-item-list" id="adminItemList"></div>
+  </div>
+</div>
+
+</body>
+</html>
