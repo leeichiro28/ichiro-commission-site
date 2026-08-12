@@ -255,6 +255,21 @@ const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CATEGORY_LABELS = { qchibi: 'Q版人物', halfbody: '半身Q版人物', qq: 'QQ人', furball: '毛球' };
 
+/* Supabase Storage 的檔名（key）只允許英數字、句點、底線、連字號，
+   中文、空白、特殊符號會直接被拒絕，回傳「Invalid key」錯誤。
+   這裡把檔名清乾淨，中文字元一律拿掉，副檔名保留。 */
+function sanitizeFileName(name) {
+  const dotIdx = name.lastIndexOf('.');
+  const ext = dotIdx > -1 ? name.slice(dotIdx + 1).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+  const base = (dotIdx > -1 ? name.slice(0, dotIdx) : name)
+    .normalize('NFKD')
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  const safeBase = base || 'file';
+  return ext ? `${safeBase}.${ext}` : safeBase;
+}
+
 /* ────────────────────────────────────────────────────────
    首頁卡片封面圖：改成自動從 Supabase 抓每個分類最新一張圖，
    不用再手動改 index.html 裡的 img src。
@@ -373,7 +388,7 @@ document.getElementById('adminAvatarBtn').addEventListener('click', async () => 
     await supa.from('artworks').delete().eq('category', 'avatar');
   }
 
-  const path = `avatar/${Date.now()}-${file.name}`;
+  const path = `avatar/${Date.now()}-${sanitizeFileName(file.name)}`;
   const { error: upErr } = await supa.storage.from('artworks').upload(path, file);
   if (upErr) { statusEl.textContent = '上傳失敗：' + upErr.message; return; }
   const { data: urlData } = supa.storage.from('artworks').getPublicUrl(path);
@@ -397,7 +412,7 @@ document.getElementById('adminUploadForm').addEventListener('submit', async (e) 
   const file = fileInput.files[0];
   if (!file) return;
   statusEl.textContent = '上傳中…';
-  const path = `${category}/${Date.now()}-${file.name}`;
+  const path = `${category}/${Date.now()}-${sanitizeFileName(file.name)}`;
   const { error: upErr } = await supa.storage.from('artworks').upload(path, file);
   if (upErr) { statusEl.textContent = '上傳失敗：' + upErr.message; return; }
   const { data: urlData } = supa.storage.from('artworks').getPublicUrl(path);
