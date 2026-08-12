@@ -269,7 +269,7 @@ document.querySelectorAll('.guide-card, .timeline-card, .payment-row').forEach(c
    → anon public key 貼到 SUPABASE_ANON_KEY
    （anon key 是設計來放在前端的，不是密碼，安全）
    ════════════════════════════════════════════════════════ */
-const SUPABASE_URL = 'https://vjohtmslqwafccjjjpzqq.supabase.co';
+const SUPABASE_URL = 'https://vjohtmslqwafccjjpzqq.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LakOr2FuYGqCLUL3JhzuFQ_pKbo5vG8';
 const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
