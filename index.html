@@ -27,8 +27,8 @@
 <!-- HERO -->
 <section id="home">
   <div class="avatar-ring">
-    <img src="images/dragon.png" alt="Mira Vesper avatar" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="avatar-fallback">
+    <img id="heroAvatar" src="" alt="Mira Vesper avatar" class="avatar-img" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="avatar-fallback" style="display:flex;">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
     </svg>
   </div>
@@ -163,9 +163,9 @@
     <!-- 每張卡片代表一個分類，點擊後會打開該分類的圖庫彈窗
          data-category 對應下面 galleryData 裡的 key，記得保持一致 -->
     <div class="portfolio-card" onclick="openGallery('qchibi')">
-      <!-- 把 src="" 換成你的圖片路徑或網址，這張是分類的「封面圖」 -->
-      <img src="images/kSPEAK.png" alt="Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="pc-1" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <!-- 封面圖現在由 script.js 從 Supabase 自動抓最新一張填入，不用再手動改 src -->
+      <img id="cover-qchibi" src="" alt="Q版人物範例" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+      <div class="pc-1" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
       <div class="card-view-more">查看更多範例 →</div>
       <div class="card-label">NT$400</div>
       <div class="card-overlay">
@@ -173,8 +173,8 @@
       </div>
     </div>
     <div class="portfolio-card" onclick="openGallery('halfbody')">
-      <img src="images/comic6.png" alt="半身Q版人物範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="pc-2" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <img id="cover-halfbody" src="" alt="半身Q版人物範例" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+      <div class="pc-2" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
       <div class="card-view-more">查看更多範例 →</div>
       <div class="card-label">NT$350</div>
       <div class="card-overlay">
@@ -182,8 +182,8 @@
       </div>
     </div>
     <div class="portfolio-card" onclick="openGallery('qq')">
-      <img src="images/qq1.png" alt="QQ人範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="pc-3" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <img id="cover-qq" src="" alt="QQ人範例" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+      <div class="pc-3" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
       <div class="card-view-more">查看更多範例 →</div>
       <div class="card-label">NT$300</div>
       <div class="card-overlay">
@@ -191,8 +191,8 @@
       </div>
     </div>
     <div class="portfolio-card" onclick="openGallery('furball')">
-      <img src="images/anm3.png" alt="毛球範例" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-      <div class="pc-4" style="width:100%;height:100%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
+      <img id="cover-furball" src="" alt="毛球範例" style="display:none;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" onload="this.style.display='block'; this.nextElementSibling.style.display='none';">
+      <div class="pc-4" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif;color:rgba(201,169,110,0.3);font-size:48px;">✦</div>
       <div class="card-view-more">查看更多範例 →</div>
       <div class="card-label">NT$250</div>
       <div class="card-overlay">
@@ -401,6 +401,17 @@
     </span>
   </div>
   <div class="admin-panel-body">
+    <div class="admin-avatar-box">
+      <label style="margin-bottom:8px;">大頭貼設定</label>
+      <div class="admin-avatar-row">
+        <img id="adminAvatarPreview" src="" alt="目前大頭貼">
+        <div style="flex:1;">
+          <input type="file" id="adminAvatarFile" accept="image/*" style="margin-bottom:8px;">
+          <button type="button" class="admin-icon-btn" id="adminAvatarBtn" style="width:100%; padding:9px;">更新大頭貼</button>
+        </div>
+      </div>
+      <p class="admin-status" id="adminAvatarStatus"></p>
+    </div>
     <div class="admin-migrate-box">
       <label style="margin-bottom:8px;">維護工具</label>
       <button type="button" class="admin-icon-btn" id="adminMigrateBtn" style="width:100%; padding:9px; margin-bottom:6px;">一鍵搬遷舊作品到 Supabase</button>
@@ -422,6 +433,8 @@
     <div class="admin-item-list" id="adminItemList"></div>
   </div>
 </div>
+
+<button class="admin-reopen-btn" id="adminReopenBtn" title="打開後台面板">後台</button>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>

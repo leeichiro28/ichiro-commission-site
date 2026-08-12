@@ -19,42 +19,22 @@ const galleryData = {
   qchibi: {
     title: 'Q版人物',
     price: 'NT$400',
-    images: [
-      'images/kSPEAK.png',
-      'images/comic3.png',
-      'images/comic1.png',
-    
-    ]
+    images: []
   },
   halfbody: {
     title: '半身Q版人物',
     price: 'NT$350',
-    images: [
-      'images/comic6.png',
-      'images/comic2.png',
-      'images/comic4.png',
-      'images/comic5.png',
-    ]
+    images: []
   },
   qq: {
     title: 'QQ人',
     price: 'NT$300',
-    images: [
-      'images/qq1.png',
-      'images/qq2.png',
-  
-    ]
+    images: []
   },
   furball: {
     title: '毛球',
     price: 'NT$250',
-    images: [
-      'images/dragon.png',
-      'images/eat1.png',
-      'images/anm3.png',
-      'images/anm1.png',
-      'images/anm2.png',
-    ]
+    images: []
   }
 };
 
@@ -275,7 +255,32 @@ const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CATEGORY_LABELS = { qchibi: 'Q版人物', halfbody: '半身Q版人物', qq: 'QQ人', furball: '毛球' };
 
-/* 入口：連續點擊 Logo 7 下（3 秒內），別的地方完全沒有入口 */
+/* ────────────────────────────────────────────────────────
+   首頁卡片封面圖：改成自動從 Supabase 抓每個分類最新一張圖，
+   不用再手動改 index.html 裡的 img src。
+   對應 index.html 裡的 <img id="cover-xxx">。
+   ──────────────────────────────────────────────────────── */
+Object.keys(CATEGORY_LABELS).forEach((category) => {
+  supa.from('artworks').select('image_url').eq('category', category)
+    .order('created_at', { ascending: false }).limit(1)
+    .then(({ data }) => {
+      if (!data || !data.length) return;
+      const img = document.getElementById(`cover-${category}`);
+      if (img) img.src = data[0].image_url;
+    });
+});
+
+/* ────────────────────────────────────────────────────────
+   首頁大頭貼：從 Supabase 抓最新一張 category='avatar' 的圖，
+   對應 index.html 裡的 <img id="heroAvatar">。
+   ──────────────────────────────────────────────────────── */
+supa.from('artworks').select('image_url').eq('category', 'avatar')
+  .order('created_at', { ascending: false }).limit(1)
+  .then(({ data }) => {
+    if (!data || !data.length) return;
+    const img = document.getElementById('heroAvatar');
+    if (img) img.src = data[0].image_url;
+  });
 let logoClicks = 0, logoClickTimer = null;
 document.querySelector('.nav-logo').addEventListener('click', (e) => {
   logoClicks++;
@@ -325,15 +330,64 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
 document.getElementById('adminLogoutBtn').addEventListener('click', async () => {
   await supa.auth.signOut();
   document.getElementById('adminPanel').classList.remove('open');
+  document.getElementById('adminReopenBtn').classList.remove('show');
 });
 document.getElementById('adminPanelClose').addEventListener('click', () => {
   document.getElementById('adminPanel').classList.remove('open');
+  document.getElementById('adminReopenBtn').classList.add('show');
+});
+document.getElementById('adminReopenBtn').addEventListener('click', () => {
+  document.getElementById('adminPanel').classList.add('open');
+  document.getElementById('adminReopenBtn').classList.remove('show');
 });
 
 function showAdminPanel() {
   document.getElementById('adminPanel').classList.add('open');
+  document.getElementById('adminReopenBtn').classList.remove('show');
   loadAdminItems();
+  loadAdminAvatarPreview();
 }
+
+/* ────────────────────────────────────────────────────────
+   大頭貼管理：上傳新圖時，先清掉舊的 avatar 紀錄（storage + 資料表），
+   再存新的一筆，確保 category='avatar' 永遠只有一張是「目前生效」的。
+   ──────────────────────────────────────────────────────── */
+async function loadAdminAvatarPreview() {
+  const preview = document.getElementById('adminAvatarPreview');
+  const { data } = await supa.from('artworks').select('image_url')
+    .eq('category', 'avatar').order('created_at', { ascending: false }).limit(1);
+  if (data && data.length) preview.src = data[0].image_url;
+}
+
+document.getElementById('adminAvatarBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('adminAvatarStatus');
+  const fileInput = document.getElementById('adminAvatarFile');
+  const file = fileInput.files[0];
+  if (!file) { statusEl.textContent = '請先選擇圖片'; return; }
+  statusEl.textContent = '上傳中…';
+
+  const { data: oldRows } = await supa.from('artworks').select('id, storage_path').eq('category', 'avatar');
+  if (oldRows && oldRows.length) {
+    const oldPaths = oldRows.map(r => r.storage_path).filter(Boolean);
+    if (oldPaths.length) await supa.storage.from('artworks').remove(oldPaths);
+    await supa.from('artworks').delete().eq('category', 'avatar');
+  }
+
+  const path = `avatar/${Date.now()}-${file.name}`;
+  const { error: upErr } = await supa.storage.from('artworks').upload(path, file);
+  if (upErr) { statusEl.textContent = '上傳失敗：' + upErr.message; return; }
+  const { data: urlData } = supa.storage.from('artworks').getPublicUrl(path);
+  const { error: insErr } = await supa.from('artworks').insert({
+    category: 'avatar', image_url: urlData.publicUrl, storage_path: path
+  });
+  if (insErr) { statusEl.textContent = '存檔失敗：' + insErr.message; return; }
+
+  statusEl.textContent = '已更新，訪客現在就看得到！';
+  fileInput.value = '';
+  document.getElementById('adminAvatarPreview').src = urlData.publicUrl;
+  const heroImg = document.getElementById('heroAvatar');
+  if (heroImg) heroImg.src = urlData.publicUrl;
+});
 
 document.getElementById('adminUploadForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -356,29 +410,56 @@ document.getElementById('adminUploadForm').addEventListener('submit', async (e) 
   loadAdminItems();
 });
 
+const CATEGORY_ORDER = ['qchibi', 'halfbody', 'qq', 'furball'];
+
 async function loadAdminItems() {
   const list = document.getElementById('adminItemList');
   list.innerHTML = '<p style="color:var(--text-muted);font-size:12px;">載入中…</p>';
-  const { data, error } = await supa.from('artworks').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supa.from('artworks').select('*')
+    .neq('category', 'avatar').order('created_at', { ascending: false });
   if (error) { list.innerHTML = '<p style="color:#d16a6a;font-size:12px;">讀取失敗</p>'; return; }
   list.innerHTML = '';
+
+  // 依分類分組，順序固定用 CATEGORY_ORDER，未知分類排最後
+  const groups = {};
   data.forEach(item => {
-    const row = document.createElement('div');
-    row.className = 'admin-item-row';
-    const img = document.createElement('img');
-    img.src = item.image_url;
-    const label = document.createElement('span');
-    label.textContent = CATEGORY_LABELS[item.category] || item.category;
-    const delBtn = document.createElement('button');
-    delBtn.className = 'admin-del-btn';
-    delBtn.textContent = '刪除';
-    delBtn.addEventListener('click', async () => {
-      await supa.storage.from('artworks').remove([item.storage_path]);
-      await supa.from('artworks').delete().eq('id', item.id);
-      loadAdminItems();
+    if (!groups[item.category]) groups[item.category] = [];
+    groups[item.category].push(item);
+  });
+  const orderedCategories = [
+    ...CATEGORY_ORDER.filter(c => groups[c]),
+    ...Object.keys(groups).filter(c => !CATEGORY_ORDER.includes(c))
+  ];
+
+  if (!orderedCategories.length) {
+    list.innerHTML = '<p style="color:var(--text-muted);font-size:12px;">目前還沒有作品</p>';
+    return;
+  }
+
+  orderedCategories.forEach(category => {
+    const title = document.createElement('div');
+    title.className = 'admin-item-group-title';
+    title.textContent = `${CATEGORY_LABELS[category] || category}（${groups[category].length}）`;
+    list.appendChild(title);
+
+    groups[category].forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'admin-item-row';
+      const img = document.createElement('img');
+      img.src = item.image_url;
+      const label = document.createElement('span');
+      label.textContent = CATEGORY_LABELS[item.category] || item.category;
+      const delBtn = document.createElement('button');
+      delBtn.className = 'admin-del-btn';
+      delBtn.textContent = '刪除';
+      delBtn.addEventListener('click', async () => {
+        await supa.storage.from('artworks').remove([item.storage_path]);
+        await supa.from('artworks').delete().eq('id', item.id);
+        loadAdminItems();
+      });
+      row.append(img, label, delBtn);
+      list.appendChild(row);
     });
-    row.append(img, label, delBtn);
-    list.appendChild(row);
   });
 }
 
