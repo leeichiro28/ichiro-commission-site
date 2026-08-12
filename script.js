@@ -41,7 +41,51 @@ const galleryData = {
 let currentGalleryImages = [];
 let currentLightboxIndex = 0;
 
-function openGallery(categoryKey) {
+/* ────────────────────────────────────────────────────────
+   依圖片實際長寬比例，決定它在格子裡要佔幾欄/幾列：
+   橫圖佔多欄、直圖佔多列，圖片本身用 contain 完整顯示，
+   不裁切也不變形，格子本身仍是規則的正方形基準單位。
+   ──────────────────────────────────────────────────────── */
+function computeGallerySpan(naturalWidth, naturalHeight, maxCols) {
+  const ratio = naturalWidth / naturalHeight;
+  if (ratio >= 1.15) {
+    // 橫圖：越寬佔越多欄，最多佔滿一整排
+    return { colSpan: Math.min(maxCols, Math.max(1, Math.round(ratio))), rowSpan: 1 };
+  }
+  if (ratio <= 0.87) {
+    // 直圖：越長佔越多列，最多 3 列避免佔太滿
+    return { colSpan: 1, rowSpan: Math.min(3, Math.max(1, Math.round(1 / ratio))) };
+  }
+  return { colSpan: 1, rowSpan: 1 };
+}
+
+function loadImageDimensions(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight, ok: true });
+    img.onerror = () => resolve({ w: 1, h: 1, ok: false });
+    img.src = src;
+  });
+}
+
+/* 格子的正方形基準單位（--cell-size）用 JS 算，
+   因為欄寬是 fr（響應式），列高只能用固定像素，
+   所以量出目前一欄實際多寬，拿來當一列的高度，維持方格。 */
+function updateGalleryCellSize() {
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return 3;
+  const cols = window.innerWidth <= 700 ? 2 : 3;
+  const gap = 14;
+  const width = grid.clientWidth;
+  if (width) {
+    const cell = (width - gap * (cols - 1)) / cols;
+    grid.style.setProperty('--cell-size', `${cell}px`);
+  }
+  return cols;
+}
+window.addEventListener('resize', () => { updateGalleryCellSize(); });
+
+async function openGallery(categoryKey) {
   const data = galleryData[categoryKey];
   if (!data) return;
 
@@ -49,19 +93,39 @@ function openGallery(categoryKey) {
   document.getElementById('galleryPrice').textContent = data.price;
 
   const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '<p style="color:var(--text-muted);font-size:12px;grid-column:1/-1;">載入中…</p>';
+  document.getElementById('galleryModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  const cols = updateGalleryCellSize();
+
+  const { data: rows } = await supa.from('artworks').select('image_url')
+    .eq('category', categoryKey).order('created_at', { ascending: false });
+  const urls = (rows || []).map(r => r.image_url);
+
+  if (!urls.length) {
+    grid.innerHTML = '<p style="color:var(--text-muted);font-size:12px;grid-column:1/-1;">目前還沒有範例圖，敬請期待</p>';
+    currentGalleryImages = [];
+    return;
+  }
+
+  const dims = await Promise.all(urls.map(loadImageDimensions));
+  currentGalleryImages = urls;
+
   grid.innerHTML = '';
-  data.images.forEach((src, idx) => {
+  urls.forEach((src, idx) => {
+    const { w, h, ok } = dims[idx];
+    const { colSpan, rowSpan } = ok ? computeGallerySpan(w, h, cols) : { colSpan: 1, rowSpan: 1 };
     const item = document.createElement('div');
     item.className = 'gallery-item';
-    item.onclick = () => openLightbox(data.images, idx);
+    item.style.gridColumn = `span ${colSpan}`;
+    item.style.gridRow = `span ${rowSpan}`;
+    item.onclick = () => openLightbox(currentGalleryImages, idx);
     // 圖片載入失敗時顯示占位符號，不會整頁壞掉
     item.innerHTML = `<img src="${src}" alt="${data.title} 範例 ${idx + 1}"
       onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\\'font-size:32px;color:rgba(201,169,110,0.3);font-family:Jost,sans-serif;\\'>✦</span>';">`;
     grid.appendChild(item);
   });
-
-  document.getElementById('galleryModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeGallery() {
@@ -271,19 +335,25 @@ function sanitizeFileName(name) {
 }
 
 /* ────────────────────────────────────────────────────────
-   首頁卡片封面圖：改成自動從 Supabase 抓每個分類最新一張圖，
-   不用再手動改 index.html 裡的 img src。
+   首頁卡片封面圖：優先抓後台手動標記「設為預覽圖」(is_cover=true) 的那張，
+   如果該分類還沒手動指定過，就自動退回抓最新一張。
    對應 index.html 裡的 <img id="cover-xxx">。
    ──────────────────────────────────────────────────────── */
-Object.keys(CATEGORY_LABELS).forEach((category) => {
-  supa.from('artworks').select('image_url').eq('category', category)
-    .order('created_at', { ascending: false }).limit(1)
-    .then(({ data }) => {
-      if (!data || !data.length) return;
-      const img = document.getElementById(`cover-${category}`);
-      if (img) img.src = data[0].image_url;
-    });
-});
+Object.keys(CATEGORY_LABELS).forEach((category) => { fetchCategoryCover(category); });
+
+async function fetchCategoryCover(category) {
+  const img = document.getElementById(`cover-${category}`);
+  if (!img) return;
+  let { data } = await supa.from('artworks').select('image_url')
+    .eq('category', category).eq('is_cover', true).limit(1);
+  if (!data || !data.length) {
+    const fallback = await supa.from('artworks').select('image_url')
+      .eq('category', category).order('created_at', { ascending: false }).limit(1);
+    data = fallback.data;
+  }
+  if (!data || !data.length) return;
+  img.src = data[0].image_url;
+}
 
 /* ────────────────────────────────────────────────────────
    首頁大頭貼：從 Supabase 抓最新一張 category='avatar' 的圖，
@@ -459,11 +529,30 @@ async function loadAdminItems() {
 
     groups[category].forEach(item => {
       const row = document.createElement('div');
-      row.className = 'admin-item-row';
+      row.className = 'admin-item-row' + (item.is_cover ? ' is-cover' : '');
       const img = document.createElement('img');
       img.src = item.image_url;
       const label = document.createElement('span');
       label.textContent = CATEGORY_LABELS[item.category] || item.category;
+      const coverBtn = document.createElement('button');
+      if (item.is_cover) {
+        coverBtn.className = 'admin-cover-btn is-active';
+        coverBtn.textContent = '★ 預覽圖';
+        coverBtn.disabled = true;
+      } else {
+        coverBtn.className = 'admin-cover-btn';
+        coverBtn.textContent = '設為預覽圖';
+        coverBtn.addEventListener('click', async () => {
+          coverBtn.disabled = true;
+          coverBtn.textContent = '設定中…';
+          await supa.from('artworks').update({ is_cover: false })
+            .eq('category', item.category).eq('is_cover', true);
+          await supa.from('artworks').update({ is_cover: true }).eq('id', item.id);
+          const coverImg = document.getElementById(`cover-${item.category}`);
+          if (coverImg) coverImg.src = item.image_url;
+          loadAdminItems();
+        });
+      }
       const delBtn = document.createElement('button');
       delBtn.className = 'admin-del-btn';
       delBtn.textContent = '刪除';
@@ -472,7 +561,7 @@ async function loadAdminItems() {
         await supa.from('artworks').delete().eq('id', item.id);
         loadAdminItems();
       });
-      row.append(img, label, delBtn);
+      row.append(img, label, coverBtn, delBtn);
       list.appendChild(row);
     });
   });
@@ -529,25 +618,3 @@ document.getElementById('adminMigrateBtn').addEventListener('click', async () =>
   btn.disabled = false;
   loadAdminItems();
 });
-
-/* 前台圖庫：打開分類圖庫時，把後台新增的圖片一起併進去，
-   訪客只會看到作品變多了，完全看不到後台入口 */
-const _originalOpenGallery = openGallery;
-openGallery = function (categoryKey) {
-  _originalOpenGallery(categoryKey);
-  supa.from('artworks').select('image_url').eq('category', categoryKey)
-    .order('created_at', { ascending: false })
-    .then(({ data }) => {
-      if (!data || !data.length) return;
-      const grid = document.getElementById('galleryGrid');
-      data.forEach((row) => {
-        currentGalleryImages.push(row.image_url);
-        const idx = currentGalleryImages.length - 1;
-        const item = document.createElement('div');
-        item.className = 'gallery-item';
-        item.onclick = () => openLightbox(currentGalleryImages, idx);
-        item.innerHTML = `<img src="${row.image_url}" alt="">`;
-        grid.appendChild(item);
-      });
-    });
-};
